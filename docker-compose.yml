@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-status}
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 1s
+      retries: 30
+
+  server:
+    build: server
+    environment:
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-status}@db/postgres
+      API_TOKEN: ${API_TOKEN:?API_TOKEN is not set}
+      CHECK_INTERVAL: ${CHECK_INTERVAL:-30}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db:
