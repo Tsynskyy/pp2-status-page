@@ -22,5 +22,14 @@ services:
       db:
         condition: service_healthy
 
+  client:
+    build: client
+    environment:
+      API_URL: http://server:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+
 volumes:
   db:
